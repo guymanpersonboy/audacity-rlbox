@@ -1,0 +1,5 @@
+if(EXISTS "/Users/topher/Documents/Spring2022/cs361s/final project/rlbox_wasm2c_sandbox/build/test_rlbox_glue_smallheap_tests-b858cb2.cmake")
+  include("/Users/topher/Documents/Spring2022/cs361s/final project/rlbox_wasm2c_sandbox/build/test_rlbox_glue_smallheap_tests-b858cb2.cmake")
+else()
+  add_test(test_rlbox_glue_smallheap_NOT_BUILT-b858cb2 test_rlbox_glue_smallheap_NOT_BUILT-b858cb2)
+endif()
