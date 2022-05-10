@@ -9,7 +9,10 @@ wrapper:
 	build/_deps/wasiclang-src/bin/clang --sysroot build/_deps/wasiclang-src/share/wasi-sysroot wasm2c_sandbox_wrapper.c -c -o wasm2c_sandbox_wrapper.o
 
 wasm:
-	$(CC) $(CFLAGS) $(LDFLAGS) wasm2c_sandbox_wrapper.c ../src/soxr.c -o libSoX.wasm
+	build/_deps/wasiclang-src/bin/clang --sysroot build/_deps/wasiclang-src/share/wasi-sysroot ../src/soxr.c -c -o libSoX.wasm
+
+wasm2:
+	$(CC) $(LDFLAGS) wasm2c_sandbox_wrapper.c ../src/soxr.c -c -o sox.wasm
 
 c:
 	build/_deps/mod_wasm2c-src/bin/wasm2c -o libWasmSoX.c libSoX.wasm
