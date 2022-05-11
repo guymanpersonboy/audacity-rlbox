@@ -1,3 +1,0 @@
-repository='https://github.com/PLSysSec/rlbox_api_cpp17.git'
-module=''
-tag='origin'

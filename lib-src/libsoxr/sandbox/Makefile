@@ -18,4 +18,4 @@ c:
 	build/_deps/mod_wasm2c-src/bin/wasm2c -o libWasmSoX.c libSoX.wasm
 
 so:
-	gcc -shared -fPIC -O3 -o libWasmSoX.so libWasmSoX.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-impl.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-os-unix.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-os-win.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-wasi.c
+	gcc -shared -fPIC -O3 -o sox.so ../src/soxr.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-impl.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-os-unix.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-os-win.c build/_deps/mod_wasm2c-src/wasm2c/wasm-rt-wasi.c

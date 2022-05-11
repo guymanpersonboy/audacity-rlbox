@@ -1,3 +1,0 @@
-repository='https://github.com/PLSysSec/wasm2c_sandbox_compiler'
-module=''
-tag='origin'
