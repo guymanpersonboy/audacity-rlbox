@@ -286,10 +286,16 @@ static cr_core_t const cr_core = {
 #if defined SOXR_LIB
 
 #include "soxr.h"
+// rlbox
+#define RLBOX_SINGLE_THREADED_INVOCATIONS
+#include "../../../include/rlbox/rlbox.hpp"
+#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
+
 
 static char const * rate_create(void * channel, void * shared, double io_ratio,
     soxr_quality_spec_t * q_spec, soxr_runtime_spec_t * r_spec, double scale)
 {
+  // TODO: _soxr_init located in cr.c
   return _soxr_init(channel, shared, io_ratio, q_spec, r_spec, scale,
       &cr_core, CORE_TYPE);
 }

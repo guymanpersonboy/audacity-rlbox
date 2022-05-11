@@ -260,7 +260,12 @@ static struct half_fir_info const * find_half_fir(
 #define have_post_stage (postM * postL != 1)
 
 #include "soxr.h"
+// rlbox
+#define RLBOX_SINGLE_THREADED_INVOCATIONS
+#include "../../../include/rlbox/rlbox.hpp"
+#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
 
+// TODO sanitize
 STATIC char const * _soxr_init(
   rate_t * const p,             /* Per audio channel. */
   rate_shared_t * const shared, /* By channels undergoing same rate change. */
@@ -512,6 +517,7 @@ static bool stage_process(stage_t * stage, bool flushing)
   return done && fifo_occupancy(fifo) < stage->input_size;
 }
 
+// TODO: sanitize
 STATIC void _soxr_process(rate_t * p, size_t olen)
 {
   int const n = p->flushing? min(-(int)p->samples_out, (int)olen) : (int)olen;
@@ -522,6 +528,7 @@ STATIC void _soxr_process(rate_t * p, size_t olen)
     done = stage->is_input || stage_process(stage - 1, p->flushing);
 }
 
+// TODO: sanitize
 STATIC real * _soxr_input(rate_t * p, real const * samples, size_t n)
 {
   if (p->flushing)
@@ -530,6 +537,7 @@ STATIC real * _soxr_input(rate_t * p, real const * samples, size_t n)
   return fifo_write(&p->stages[0].fifo, (int)n, samples);
 }
 
+// TODO: sanitize
 STATIC real const * _soxr_output(rate_t * p, real * samples, size_t * n0)
 {
   fifo_t * fifo = &p->stages[p->num_stages].fifo;
@@ -538,6 +546,7 @@ STATIC real const * _soxr_output(rate_t * p, real * samples, size_t * n0)
   return fifo_read(fifo, (int)(*n0 = (size_t)n), samples);
 }
 
+// TODO: sanitize
 STATIC void _soxr_flush(rate_t * p)
 {
   if (p->flushing) return;
@@ -546,6 +555,7 @@ STATIC void _soxr_flush(rate_t * p)
   p->flushing = true;
 }
 
+// TODO: sanitize
 STATIC void _soxr_close(rate_t * p)
 {
   if (p->stages) {
@@ -575,11 +585,13 @@ STATIC void _soxr_close(rate_t * p)
 }
 
 #if defined SOXR_LIB
+// TODO: sanitize
 STATIC double _soxr_delay(rate_t * p)
 {
   return (double)p->samples_in / p->io_ratio - (double)p->samples_out;
 }
 
+// TODO: sanitize
 STATIC void _soxr_sizes(size_t * shared, size_t * channel)
 {
   *shared = sizeof(rate_shared_t);

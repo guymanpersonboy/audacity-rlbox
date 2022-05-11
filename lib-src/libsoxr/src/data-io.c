@@ -8,6 +8,10 @@
 #include "data-io.h"
 #include "internal.h"
 
+// rlbox
+#define RLBOX_SINGLE_THREADED_INVOCATIONS
+#include "../../../include/rlbox/rlbox.hpp"
+#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
 
 
 #define DEINTERLEAVE_FROM(T,flag) do { \
@@ -24,6 +28,7 @@
 
 
 #if WITH_CR64 || WITH_CR64S
+// TODO: sanitize
 void _soxr_deinterleave(double * * dest, /* Round/clipping not needed here */
     soxr_datatype_t data_type, void const * * src0, size_t n, unsigned ch)
 {
@@ -41,6 +46,7 @@ void _soxr_deinterleave(double * * dest, /* Round/clipping not needed here */
 
 
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
+// TODO: sanitize
 void _soxr_deinterleave_f(float * * dest, /* Round/clipping not needed here */
     soxr_datatype_t data_type, void const * * src0, size_t n, unsigned ch)
 {
@@ -171,6 +177,7 @@ void _soxr_deinterleave_f(float * * dest, /* Round/clipping not needed here */
 } while (0)
 
 #if WITH_CR64 || WITH_CR64S
+// TODO: sanitize
 size_t /* clips */ _soxr_interleave(soxr_datatype_t data_type, void * * dest0,
   double const * const * src, size_t n, unsigned ch, unsigned long * seed)
 {
@@ -197,6 +204,7 @@ size_t /* clips */ _soxr_interleave(soxr_datatype_t data_type, void * * dest0,
 #endif
 
 #if WITH_CR32 || WITH_CR32S || WITH_VR32
+// TODO: sanitize
 size_t /* clips */ _soxr_interleave_f(soxr_datatype_t data_type, void * * dest0,
   float const * const * src, size_t n, unsigned ch, unsigned long * seed)
 {

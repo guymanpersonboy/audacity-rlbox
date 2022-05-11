@@ -29,6 +29,12 @@
 
 #include <soxr.h>
 
+// rlbox
+#define RLBOX_SINGLE_THREADED_INVOCATIONS
+#include "../../../include/rlbox/rlbox.hpp"
+#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
+
+// TODO: sanitize
 Resample::Resample(const bool useBestMethod, const double dMinFactor, const double dMaxFactor)
 {
    this->SetMethod(useBestMethod);
@@ -83,6 +89,7 @@ EnumSetting< int > Resample::BestMethodSetting
    wxT("/Quality/LibsoxrHQSampleRateConverter")
 };
 
+// TODO: sanitize
 //////////
 std::pair<size_t, size_t>
       Resample::Process(double  factor,

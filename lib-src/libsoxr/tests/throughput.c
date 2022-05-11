@@ -5,6 +5,11 @@
 #include "rint.h"
 #include "../examples/examples-common.h"
 
+// rlbox
+#define RLBOX_SINGLE_THREADED_INVOCATIONS
+#include "../../../include/rlbox/rlbox.hpp"
+#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
+
 #define k 1000
 
 #if defined _WIN32
@@ -51,6 +56,7 @@
       (tmp.tv_sec < stop.tv_sec || tmp.tv_frac < stop.tv_frac))
 #endif
 
+// TODO: sanitize
 int main(int n, char const * arg[])
 {
   char const *     const arg0 = n? --n, *arg++ : "", * engine = "";
