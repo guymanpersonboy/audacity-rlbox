@@ -1,5 +1,6 @@
 # Autotools generated files
 locale/Makefile.in
+Makefile
 aclocal.m4
 autom4te.cache
 config.status
@@ -95,7 +96,6 @@ dox/
 *.ncb
 
 # Compiled Dynamic libraries
-*.so
 *.dylib
 *.dll
 
