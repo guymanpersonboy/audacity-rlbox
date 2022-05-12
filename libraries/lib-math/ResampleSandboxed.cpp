@@ -28,6 +28,8 @@
 #include "ComponentInterface.h"
 
 #include <soxr.h>
+// we added this for strcmp
+#include "string.h"
 
 // We're going to use RLBox in a single-threaded environment.
 #define RLBOX_SINGLE_THREADED_INVOCATIONS
@@ -42,9 +44,10 @@ using namespace rlbox;
 //rlbox::rlbox_sandbox<rlbox::rlbox_wasm2c_sandbox> sandbox;
 
 // Define base type for mylib using the noop sandbox
-RLBOX_DEFINE_BASE_TYPES_FOR(mylib, noop);
+RLBOX_DEFINE_BASE_TYPES_FOR(soxr, noop);
 
-
+#include "lib_struct_file.h"
+rlbox_load_structs_from_library(soxr);
 
 // TODO: sanitize
 Resample::Resample(const bool useBestMethod, const double dMinFactor, const double dMaxFactor)
@@ -57,13 +60,50 @@ Resample::Resample(const bool useBestMethod, const double dMinFactor, const doub
    if (dMinFactor == dMaxFactor)
    {
       mbWantConstRateResampling = true; // constant rate resampling
-      auto q_spec = sandbox.invoke_sandbox_function(soxr_quality_spec, "\0\1\4\6"[mMethod], 0);
       // q_spec = soxr_quality_spec("\0\1\4\6"[mMethod], 0);
+      auto q_spec_tainted = sandbox.invoke_sandbox_function(soxr_quality_spec, "\0\1\4\6"[mMethod], 0);
+      q_spec = q_spec_tainted.copy_and_verify(
+         [](q_quality_spec_t ret) {
+            bool valid_precision = ret.precision >= 0.0 && ret.precision <= 64;
+            bool valid_phase_response = ret.phase_response >= 0.0 && ret.phase_response <= 100.0;          
+            bool valid_passband_end = ret.passband_end >= 0.0 && ret.passband_end <= 1.0;
+            bool valid_stopband_begin = ret.stopband_end > ret.passband_end && ret.stopband_end < 1e3;
+            bool valid_e = 0 == strcmp((char *)ret.e, "invalid quality type");
+            bool valid_flags = ret.flags <= 128u;
+            if (valid_precision && valid_phase_response 
+                     && valid_passband_end && valid_stopband_begin
+                     && valid_e && valid_stopband_begin && valid_flags) {
+               return ret;
+            } else {
+               printf("ERROR: INVALID q_quality_spec_t CAUGHT\n");
+               exit(1);
+            }
+         }
+      );
    }
    else
    {
       mbWantConstRateResampling = false; // variable rate resampling
-      q_spec = soxr_quality_spec(SOXR_HQ, SOXR_VR);
+      // q_spec = soxr_quality_spec(SOXR_HQ, SOXR_VR);
+      auto q_spec_tainted = sandbox.invoke_sandbox_function(soxr_quality_spec, SOXR_HQ, SOXR_VR);
+      q_spec = q_spec_tainted.copy_and_verify(
+         [](soxr_quality_spec_t ret) {
+            bool valid_precision = ret.precision >= 0.0 && ret.precision <= 64;
+            bool valid_phase_response = ret.phase_response >= 0.0 && ret.phase_response <= 100.0;          
+            bool valid_passband_end = ret.passband_end >= 0.0 && ret.passband_end <= 1.0;
+            bool valid_stopband_begin = ret.stopband_end > ret.passband_end && ret.stopband_end < 1e3;
+            bool valid_e = 0 == strcmp((char *)ret.e, "invalid quality type");
+            bool valid_flags = ret.flags <= 128u;
+            if (valid_precision && valid_phase_response 
+                     && valid_passband_end && valid_stopband_begin
+                     && valid_e && valid_stopband_begin && valid_flags) {
+               return ret;
+            } else {
+               printf("ERROR: INVALID q_quality_spec_t CAUGHT\n");
+               exit(1);
+            }
+         }
+      );
    }
    mHandle.reset(soxr_create(1, dMinFactor, 1, 0, 0, &q_spec, 0));
 
