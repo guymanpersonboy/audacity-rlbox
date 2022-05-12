@@ -5,11 +5,6 @@
 #include "rint.h"
 #include "../examples/examples-common.h"
 
-// rlbox
-#define RLBOX_SINGLE_THREADED_INVOCATIONS
-#include "../../../include/rlbox/rlbox.hpp"
-#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
-
 #define k 1000
 
 #if defined _WIN32
