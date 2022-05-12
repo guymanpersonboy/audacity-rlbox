@@ -63,7 +63,7 @@ Resample::Resample(const bool useBestMethod, const double dMinFactor, const doub
       // q_spec = soxr_quality_spec("\0\1\4\6"[mMethod], 0);
       auto q_spec_tainted = sandbox.invoke_sandbox_function(soxr_quality_spec, "\0\1\4\6"[mMethod], 0);
       q_spec = q_spec_tainted.copy_and_verify(
-         [](q_quality_spec_t ret) {
+         [](soxr_quality_spec_t ret) {
             bool valid_precision = ret.precision >= 0.0 && ret.precision <= 64;
             bool valid_phase_response = ret.phase_response >= 0.0 && ret.phase_response <= 100.0;          
             bool valid_passband_end = ret.passband_end >= 0.0 && ret.passband_end <= 1.0;
@@ -75,7 +75,7 @@ Resample::Resample(const bool useBestMethod, const double dMinFactor, const doub
                      && valid_e && valid_stopband_begin && valid_flags) {
                return ret;
             } else {
-               printf("ERROR: INVALID q_quality_spec_t CAUGHT\n");
+               printf("ERROR: INVALID soxr_quality_spec_t CAUGHT\n");
                exit(1);
             }
          }
@@ -99,7 +99,7 @@ Resample::Resample(const bool useBestMethod, const double dMinFactor, const doub
                      && valid_e && valid_stopband_begin && valid_flags) {
                return ret;
             } else {
-               printf("ERROR: INVALID q_quality_spec_t CAUGHT\n");
+               printf("ERROR: INVALID soxr_quality_spec_t CAUGHT\n");
                exit(1);
             }
          }
@@ -164,6 +164,7 @@ std::pair<size_t, size_t>
    size_t idone, odone;
    if (mbWantConstRateResampling)
    {
+      // TODO: verify all mHandle.get()s
       soxr_process(mHandle.get(),
             inBuffer , (lastFlag? ~inBufferLen : inBufferLen), &idone,
             outBuffer,                           outBufferLen, &odone);
