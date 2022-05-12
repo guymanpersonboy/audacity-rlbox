@@ -29,14 +29,26 @@
 
 #include <soxr.h>
 
-// rlbox
+// We're going to use RLBox in a single-threaded environment.
 #define RLBOX_SINGLE_THREADED_INVOCATIONS
+
 #include "../../../include/rlbox/rlbox.hpp"
 #include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
+
+// All calls into the sandbox are resolved statically.
+#define RLBOX_USE_STATIC_CALLS() rlbox_noop_sandbox_lookup_symbol
+
+using namespace rlbox;
+
+// Define base type for mylib using the noop sandbox
+RLBOX_DEFINE_BASE_TYPES_FOR(mylib, noop);
 
 // TODO: sanitize
 Resample::Resample(const bool useBestMethod, const double dMinFactor, const double dMaxFactor)
 {
+   rlbox_sandbox_mylib sandbox;
+   sandbox.create_sandbox();
+
    this->SetMethod(useBestMethod);
    soxr_quality_spec_t q_spec;
    if (dMinFactor == dMaxFactor)
@@ -50,6 +62,8 @@ Resample::Resample(const bool useBestMethod, const double dMinFactor, const doub
       q_spec = soxr_quality_spec(SOXR_HQ, SOXR_VR);
    }
    mHandle.reset(soxr_create(1, dMinFactor, 1, 0, 0, &q_spec, 0));
+
+   sandbox.destroy_sandbox();
 }
 
 Resample::~Resample()
@@ -99,6 +113,9 @@ std::pair<size_t, size_t>
                         float  *outBuffer,
                         size_t  outBufferLen)
 {
+   rlbox_sandbox_mylib sandbox;
+   sandbox.create_sandbox();
+
    size_t idone, odone;
    if (mbWantConstRateResampling)
    {
@@ -115,6 +132,9 @@ std::pair<size_t, size_t>
             inBuffer , inBufferLen , &idone,
             outBuffer, outBufferLen, &odone);
    }
+
+   sandbox.destroy_sandbox();
+   // TODO verify idone and odone
    return { idone, odone };
 }
 

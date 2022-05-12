@@ -56,7 +56,6 @@
       (tmp.tv_sec < stop.tv_sec || tmp.tv_frac < stop.tv_frac))
 #endif
 
-// TODO: sanitize
 int main(int n, char const * arg[])
 {
   char const *     const arg0 = n? --n, *arg++ : "", * engine = "";
