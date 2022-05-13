@@ -130,6 +130,10 @@ bool check_soxr_t(soxr_t const * _soxr) {
             && v_channel_ptrs && v_flushing;
 }
 
+bool check_idone_odone(size_t idone, size_t ilen, size_t odone, size_t olen) {
+   return *idone <= ilen && *odone <= olen;
+}
+
 
 
 Resample::Resample(const bool useBestMethod, const double dMinFactor, const double dMaxFactor)
@@ -174,7 +178,7 @@ Resample::Resample(const bool useBestMethod, const double dMinFactor, const doub
    soxr_t _soxr = soxr_tainted.copy_and_verify(
       [](soxr_t ret) {
          if (!ret) {
-            printf("ERROR: soxr_create FAILED\n")
+            printf("ERROR: soxr_create FAILED\n");
             exit(1);
          }
          if (check_soxr_t(&ret)) {
@@ -246,21 +250,40 @@ std::pair<size_t, size_t>
       // soxr_process(mHandle.get(),
       //       inBuffer , (lastFlag? ~inBufferLen : inBufferLen), &idone,
       //       outBuffer,                           outBufferLen, &odone);
+      inBufferLen = lastFlag? ~inBufferLen : inBufferLen;
       auto error_tainted = sandbox.invoke_sandbox_function(soxr_process, mHandle.get(),
-                                 inBuffer , (lastFlag? ~inBufferLen : inBufferLen), &idone,
-                                 outBuffer,                           outBufferLen, &odone);
+                                 inBuffer , inBufferLen , &idone,
+                                 outBuffer, outBufferLen, &odone);
 
-      soxr_error_t error = error_tainted.unverified_safe_because("An error string; either 0 or char *.");
+      soxr_error_t error = error_tainted.unverified_safe_because("A const char *; either 0 or set as string literal.");
       if (error) {
          printf("ERROR: soxr_process FAILED. %s\n", error);
          exit(1);
       }
-      // TODO: mHandle, idone, odone
+      if (! check_soxr_t(mHandle.get())) {
+         printf("ERROR: INVALID mHandle CAUGHT\n");
+         exit(1);
+      }
+      if (! check_idone_odone(idone, inBufferLen, odone, outBufferLen)) {
+         printf("ERROR: INVALID idone OR odone CAUGHT\n");
+         exit(1);
+      }
    }
    else
    {
-      soxr_set_io_ratio(mHandle.get(), 1/factor, 0);
-      // TODO: verify mHandle
+      // soxr_set_io_ratio(mHandle.get(), 1/factor, 0);
+      auto error_tainted = sandbox.invoke_sandbox_function(soxr_set_io_ratio, mHandle.get(),
+                                 1/factor, 0);
+      
+      soxr_error_t error = error_tainted.unverified_safe_because("A const char *; either 0 or set as string literal.");
+      if (error) {
+         printf("ERROR: soxr_set_io_ratio FAILED. %s\n", error);
+         exit(1);
+      }
+      if (! check_soxr_t(mHandle.get())) {
+         printf("ERROR: INVALID mHandle CAUGHT\n");
+         exit(1);
+      }
 
       inBufferLen = lastFlag? ~inBufferLen : inBufferLen;
       // soxr_process(mHandle.get(),
@@ -269,12 +292,19 @@ std::pair<size_t, size_t>
       auto error_tainted = sandbox.invoke_sandbox_function(soxr_process, mHandle.get(),
                                  inBuffer , inBufferLen , &idone,
                                  outBuffer, outBufferLen, &odone);
-      soxr_error_t error = error_tainted.unverified_safe_because("An error string; either 0 or char *.");
+      soxr_error_t error = error_tainted.unverified_safe_because("A const char *; either 0 or set as string literal.");
       if (error) {
          printf("ERROR: soxr_process FAILED. %s\n", error);
          exit(1);
       }
-      // TODO: mHandle, idone, odone
+      if (! check_soxr_t(mHandle.get())) {
+         printf("ERROR: INVALID mHandle CAUGHT\n");
+         exit(1);
+      }
+      if (! check_idone_odone(idone, inBufferLen, odone, outBufferLen)) {
+         printf("ERROR: INVALID idone OR odone CAUGHT\n");
+         exit(1);
+      }
    }
 
    sandbox.destroy_sandbox();
