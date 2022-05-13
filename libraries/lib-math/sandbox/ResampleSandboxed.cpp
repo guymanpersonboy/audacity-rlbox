@@ -22,7 +22,7 @@
 
 *//*******************************************************************/
 
-#include "Resample.h"
+#include "ResampleSandboxed.h"
 #include "Prefs.h"
 #include "Internat.h"
 #include "ComponentInterface.h"
@@ -34,8 +34,8 @@
 // We're going to use RLBox in a single-threaded environment.
 #define RLBOX_SINGLE_THREADED_INVOCATIONS
 
-#include "../../../include/rlbox/rlbox.hpp"
-#include "../../../include/rlbox/rlbox_noop_sandbox.hpp"
+#include "rlbox.hpp"
+#include "rlbox_noop_sandbox.hpp"
 
 // All calls into the sandbox are resolved statically.
 #define RLBOX_USE_STATIC_CALLS() rlbox_noop_sandbox_lookup_symbol
