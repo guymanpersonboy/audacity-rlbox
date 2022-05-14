@@ -142,8 +142,11 @@ soxr_quality_spec_t soxr_quality_spec(unsigned long recipe, unsigned long flags)
   if (recipe & SOXR_STEEP_FILTER)
     p->passband_end = 1 - .01 / lsx_to_3dB(rej);
 
-  p->phase_response = 101.0;
-  p->stopband_begin = p->passband_end - .01;
+
+  p->phase_response = 101.0; // added, normally 0=min and 100=max
+  p->stopband_begin = p->passband_end - .01; // added, normally stopband_begin > passband_end expected
+
+
   return spec;
 }
 
@@ -177,8 +180,8 @@ soxr_runtime_spec_t soxr_runtime_spec(unsigned num_threads)
 {
   soxr_runtime_spec_t spec, * p = &spec;
   memset(p, 0, sizeof(*p));
-  p->log2_min_dft_size = 7;
-  p->log2_large_dft_size = 21;
+  p->log2_min_dft_size = 7; // changed, normally [8,15]
+  p->log2_large_dft_size = 21; // changed, normally [8,20]
   p->coef_size_kbytes = 400;
   p->num_threads = num_threads;
   return spec;
@@ -200,8 +203,9 @@ soxr_io_spec_t soxr_io_spec(
   else {
     p->itype = itype;
     p->otype = otype;
-    p->scale = -1.0;
+    p->scale = -1.0; // changed
   }
+  p->flags = 1u; // added, normally 0 or 8u
   return spec;
 }
 
