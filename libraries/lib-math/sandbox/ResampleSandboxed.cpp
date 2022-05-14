@@ -35,16 +35,16 @@
 #define RLBOX_SINGLE_THREADED_INVOCATIONS
 
 #include "rlbox.hpp"
-#include "rlbox_noop_sandbox.hpp"
+// #include "rlbox_noop_sandbox.hpp"
+#include "rlbox_wasm2c_sandbox.hpp"
 
 // All calls into the sandbox are resolved statically.
-#define RLBOX_USE_STATIC_CALLS() rlbox_noop_sandbox_lookup_symbol
+// #define RLBOX_USE_STATIC_CALLS() rlbox_noop_sandbox_lookup_symbol
 using namespace std;
 using namespace rlbox;
-//rlbox::rlbox_sandbox<rlbox::rlbox_wasm2c_sandbox> sandbox;
 
 // Define base type for mylib using the noop sandbox
-RLBOX_DEFINE_BASE_TYPES_FOR(soxr, noop);
+// RLBOX_DEFINE_BASE_TYPES_FOR(soxr, noop);
 
 #include <lib_struct_file.h>
 rlbox_load_structs_from_library(soxr);
@@ -75,7 +75,7 @@ bool check_quality_spec(soxr_quality_spec_t const * q_spec) {
 bool check_io_spec(soxr_io_spec_t const * io_spec) {
    bool valid_itype = io_spec->itype < 8;
    bool valid_otype = io_spec->otype < 8;
-   bool valid_scale = io_spec->scale < 1e3;
+   bool valid_scale = io_spec->scale >= 0 && io_spec->scale < 1e3;
    bool valid_e = io_spec->e != NULL;
    bool valid_flags = io_spec->flags == 0 || io_spec->flags == 8u;
 
@@ -138,8 +138,8 @@ bool check_idone_odone(size_t idone, size_t ilen, size_t odone, size_t olen) {
 
 Resample::Resample(const bool useBestMethod, const double dMinFactor, const double dMaxFactor)
 {
-   rlbox_sandbox_soxr sandbox;
-   sandbox.create_sandbox();
+   rlbox_sandbox<rlbox_wasm2c_sandbox> sandbox;
+   sandbox.create_sandbox("../../../lib-src/libsoxr/sandbox/soxr.so");
 
    this->SetMethod(useBestMethod);
    soxr_quality_spec_t q_spec;
@@ -240,8 +240,8 @@ std::pair<size_t, size_t>
                         float  *outBuffer,
                         size_t  outBufferLen)
 {
-   rlbox_sandbox_soxr sandbox;
-   sandbox.create_sandbox();
+   rlbox_sandbox<rlbox_wasm2c_sandbox> sandbox;
+   sandbox.create_sandbox("../../../lib-src/libsoxr/sandbox/sox.so");
 
    size_t idone, odone;
    auto soxr_tainted = sandbox.malloc_in_sandbox<struct soxr>(1);
