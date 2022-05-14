@@ -231,7 +231,6 @@ EnumSetting< int > Resample::BestMethodSetting
 };
 
 
-// TODO: sanitize
 //////////
 std::pair<size_t, size_t>
       Resample::Process(double  factor,
@@ -245,13 +244,16 @@ std::pair<size_t, size_t>
    sandbox.create_sandbox();
 
    size_t idone, odone;
+   auto soxr_tainted = sandbox.malloc_in_sandbox<struct soxr>(1);
+   memcpy(soxr_tainted.unverified_safe_pointer_because(1, "Newly created."), mHandle.get, sizeof(struct soxr));
+
    if (mbWantConstRateResampling)
    {
+      inBufferLen = lastFlag? ~inBufferLen : inBufferLen;
       // soxr_process(mHandle.get(),
       //       inBuffer , (lastFlag? ~inBufferLen : inBufferLen), &idone,
       //       outBuffer,                           outBufferLen, &odone);
-      inBufferLen = lastFlag? ~inBufferLen : inBufferLen;
-      auto error_tainted = sandbox.invoke_sandbox_function(soxr_process, mHandle.get(),
+      auto error_tainted = sandbox.invoke_sandbox_function(soxr_process, soxr_tainted,
                                  inBuffer , inBufferLen , &idone,
                                  outBuffer, outBufferLen, &odone);
 
@@ -260,10 +262,17 @@ std::pair<size_t, size_t>
          printf("ERROR: soxr_process FAILED. %s\n", error);
          exit(1);
       }
-      if (! check_soxr_t(mHandle.get())) {
-         printf("ERROR: INVALID mHandle CAUGHT\n");
-         exit(1);
-      }
+      soxr_t _soxr = soxr_tainted.copy_and_verify(
+         [](soxr_t p) {
+            if (check_soxr_t(p)) {
+               return p;
+            }
+            printf("ERROR: INVALID mHandle CAUGHT\n");
+            exit(1);
+         }
+      );
+      mHandle.reset(_soxr);
+
       if (! check_idone_odone(idone, inBufferLen, odone, outBufferLen)) {
          printf("ERROR: INVALID idone OR odone CAUGHT\n");
          exit(1);
@@ -272,7 +281,7 @@ std::pair<size_t, size_t>
    else
    {
       // soxr_set_io_ratio(mHandle.get(), 1/factor, 0);
-      auto error_tainted = sandbox.invoke_sandbox_function(soxr_set_io_ratio, mHandle.get(),
+      auto error_tainted = sandbox.invoke_sandbox_function(soxr_set_io_ratio, soxr_tainted,
                                  1/factor, 0);
       
       soxr_error_t error = error_tainted.unverified_safe_because("A const char *; either 0 or set as string literal.");
@@ -280,16 +289,23 @@ std::pair<size_t, size_t>
          printf("ERROR: soxr_set_io_ratio FAILED. %s\n", error);
          exit(1);
       }
-      if (! check_soxr_t(mHandle.get())) {
-         printf("ERROR: INVALID mHandle CAUGHT\n");
-         exit(1);
-      }
+      soxr_t _soxr = soxr_tainted.copy_and_verify(
+         [](soxr_t p) {
+            if (check_soxr_t(p)) {
+               return p;
+            }
+            printf("ERROR: INVALID mHandle CAUGHT\n");
+            exit(1);
+         }
+      );
+      mHandle.reset(_soxr);
+      memcpy(soxr_tainted.unverified_safe_pointer_because(1, "Overwriting."), mHandle.get, sizeof(struct soxr));
 
       inBufferLen = lastFlag? ~inBufferLen : inBufferLen;
       // soxr_process(mHandle.get(),
       //       inBuffer , inBufferLen , &idone,
       //       outBuffer, outBufferLen, &odone);
-      auto error_tainted = sandbox.invoke_sandbox_function(soxr_process, mHandle.get(),
+      auto error_tainted = sandbox.invoke_sandbox_function(soxr_process, soxr_tainted,
                                  inBuffer , inBufferLen , &idone,
                                  outBuffer, outBufferLen, &odone);
       soxr_error_t error = error_tainted.unverified_safe_because("A const char *; either 0 or set as string literal.");
@@ -297,10 +313,17 @@ std::pair<size_t, size_t>
          printf("ERROR: soxr_process FAILED. %s\n", error);
          exit(1);
       }
-      if (! check_soxr_t(mHandle.get())) {
-         printf("ERROR: INVALID mHandle CAUGHT\n");
-         exit(1);
-      }
+      soxr_t _soxr = soxr_tainted.copy_and_verify(
+         [](soxr_t p) {
+            if (check_soxr_t(p)) {
+               return p;
+            }
+            printf("ERROR: INVALID mHandle CAUGHT\n");
+            exit(1);
+         }
+      );
+      mHandle.reset(_soxr);
+
       if (! check_idone_odone(idone, inBufferLen, odone, outBufferLen)) {
          printf("ERROR: INVALID idone OR odone CAUGHT\n");
          exit(1);

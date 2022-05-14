@@ -5,8 +5,8 @@ UTILITY_HEADER_PATH:=../../lib-utility
 COMPONENTS_HEADER_PATH:=../../lib-components
 PREFEERENCES_HEADER_PATH:=../../lib-preferences
 STRINGS_HEADER_PATH:=../../lib-strings
-# INTEGRATION_HEADER_PATH:=../../../../include/wasm_sandbox
 RLBOX_HEADER_PATH:=../../../../include/rlbox
+# INTEGRATION_HEADER_PATH:=../../../../include/wasm_sandbox
 CXXFLAGS:=-g -Wall
 INCLUDE_FLAGS:=-I $(RLBOX_HEADER_PATH) -I $(RESAMPLE_HEADER_PATH)	     \
 				-I $(UTILITY_HEADER_PATH) -I $(COMPONENTS_HEADER_PATH)   \
